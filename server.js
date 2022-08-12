@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./users.js');
 
 const port = 5001;
 
@@ -16,17 +17,28 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   usersConnected++;
   console.log(
-    'a user connected',
-    socket.id.slice(-3),
+    'a user connected'
     ' - users:',
     usersConnected
   );
+
+  socket.on('join', ({ name, room }, callback) => {
+    const { error, user } = addUser({ id: socket.id, name, room });
+
+    if (error) return callback(error);
+
+    socket.join(user.room);
+
+    console.log('user ' + user.name + ' has joined room: ' + user.room);
+
+    callback();
+  });
 
   socket.on('disconnect', () => {
     usersConnected--;
     console.log(
       'user disconnected',
-      socket.id.slice(-3),
+      getUser(socket.id).name,
       ' - users:',
       usersConnected
     );
@@ -39,5 +51,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`App listening on port ${port}`);
 });
