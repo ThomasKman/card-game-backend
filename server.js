@@ -5,10 +5,12 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./users.js');
+const Deck = require('./Deck/deck');
 
 const port = 5001;
 
 let usersConnected = 0;
+const deck = new Deck();
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -16,11 +18,7 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   usersConnected++;
-  console.log(
-    'a user connected'
-    ' - users:',
-    usersConnected
-  );
+  console.log('a user connected ', usersConnected, ' - users:', usersConnected);
 
   socket.on('join', ({ name, room }, callback) => {
     const { error, user } = addUser({ id: socket.id, name, room });
@@ -36,12 +34,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     usersConnected--;
-    console.log(
-      'user disconnected',
-      getUser(socket.id).name,
-      ' - users:',
-      usersConnected
-    );
+    console.log('user disconnected', 'users:', usersConnected);
   });
 
   socket.on('chat message', (msg) => {
