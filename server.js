@@ -6,11 +6,13 @@ const { Server } = require('socket.io');
 const io = new Server(server);
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./users.js');
 const Deck = require('./Deck/deck');
+const Lobby = require('./Lobby/lobby');
 
 const port = 5001;
 
 let usersConnected = 0;
 const deck = new Deck();
+const lobby = new Lobby();
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -19,6 +21,11 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   usersConnected++;
   console.log('a user connected ', usersConnected, ' - users:', usersConnected);
+
+  socket.on('joinLobby', () => {
+    console.log(socket.id + ' joined lobby');
+    io.emit('updateRooms', lobby.getRooms());
+  });
 
   socket.on('join', ({ name, room }, callback) => {
     const { error, user } = addUser({ id: socket.id, name, room });
@@ -29,6 +36,8 @@ io.on('connection', (socket) => {
 
     console.log('user ' + user.name + ' has joined room: ' + user.room);
 
+    io.emit('updateRooms', lobby.getRooms());
+
     callback();
   });
 
@@ -37,9 +46,9 @@ io.on('connection', (socket) => {
     console.log('user disconnected', 'users:', usersConnected);
   });
 
-  socket.on('chat message', (msg) => {
-    console.log('message: ' + msg + ' ' + socket.id.slice(-3));
-    io.emit('chat message', msg);
+  socket.on('createRoom', (roomName) => {
+    lobby.addRoom(roomName, 'arnus');
+    io.emit('updateRooms', lobby.getRooms());
   });
 });
 
