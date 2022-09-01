@@ -27,16 +27,21 @@ io.on('connection', (socket) => {
     io.emit('updateRooms', lobby.getRooms());
   });
 
-  socket.on('join', ({ name, room }, callback) => {
-    const { error, user } = addUser({ id: socket.id, name, room });
+  socket.on('join', ({ userName, roomName }, callback) => {
+    console.log(userName, roomName);
+    const { error, user } = addUser({
+      id: socket.id,
+      userName: userName,
+      roomName: roomName,
+    });
 
     if (error) return callback(error);
 
-    socket.join(user.room);
+    socket.join(user.roomName);
 
-    console.log('user ' + user.name + ' has joined room: ' + user.room);
+    console.log('user ' + user.userName + ' has joined room: ' + user.roomName);
 
-    io.emit('updateRooms', lobby.getRooms());
+    io.to(user.roomName).emit('updateRoom', lobby.getRoom(user.roomName));
 
     callback();
   });
