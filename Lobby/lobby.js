@@ -1,14 +1,37 @@
 const Room = require('./Room/room');
 
 // lobby.js
-function Lobby(name) {
+function Lobby(io) {
   if (!(this instanceof Lobby)) {
     return new Lobby();
+    this.io = io;
   }
 
   const rooms = [];
 
-  Lobby.prototype.addRoom = function addRoom(name, gamemode) {
+  io.on('connection', (socket) => {
+    io.emit('updateRooms', getRooms());
+
+    socket.on('createRoom', (roomName) => {
+      addRoom(roomName, 'arnus');
+    });
+
+    socket.on('joinRoom', ({ userName, roomName }) => {
+      user = {
+        id: socket.id,
+        userName: userName,
+        roomName: roomName,
+      };
+
+      io.emit('updateRooms', getRooms());
+
+      socket.join(user.roomName);
+
+      io.to(user.roomName).emit('updateRoom', getRoom(user.roomName));
+    });
+  });
+
+  const addRoom = (name, gamemode) => {
     name = format(name);
 
     const existingRoom = rooms.find((room) => room.name === name);
@@ -17,17 +40,17 @@ function Lobby(name) {
       return { error: 'Room Name is taken' };
     }
 
-    const room = new Room(name, gamemode);
+    const room = new Room(name, gamemode, io);
     rooms.push(room);
 
     return rooms;
   };
 
-  Lobby.prototype.getRooms = function getRooms() {
+  const getRooms = () => {
     return rooms;
   };
 
-  Lobby.prototype.getRoom = function getRoom(name) {
+  const getRoom = (name) => {
     name = format(name);
     return rooms.find((room) => room.name === name);
   };
