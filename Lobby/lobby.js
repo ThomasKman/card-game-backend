@@ -11,6 +11,7 @@ function Lobby(io) {
 
   io.on('connection', (socket) => {
     io.emit('updateRooms', getRooms());
+    socket.join('lobby');
 
     socket.on('createRoom', (roomName) => {
       addRoom(roomName, 'arnus');
@@ -24,10 +25,6 @@ function Lobby(io) {
       };
 
       io.emit('updateRooms', getRooms());
-
-      socket.join(user.roomName);
-
-      io.to(user.roomName).emit('updateRoom', getRoom(user.roomName));
     });
   });
 
@@ -44,6 +41,15 @@ function Lobby(io) {
     rooms.push(room);
 
     return rooms;
+  };
+
+  const removeRoom = (name) => {
+    name = format(name);
+
+    const index = rooms.findIndex((room) => room.name === name);
+    if (index !== -1) {
+      return rooms.splice(index, 1)[0];
+    }
   };
 
   const getRooms = () => {

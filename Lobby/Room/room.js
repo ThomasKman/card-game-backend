@@ -14,12 +14,17 @@ function Room(name, gamemode, io) {
 
   io.on('connection', (socket) => {
     socket.on('joinRoom', ({ userName, roomName }) => {
-      if (roomName === name) {
-        console.log(userName, roomName);
-        addUser({ id: 'loll', name: 'lolol' });
+      socket.join(roomName);
 
-        socket.emit('updateRoom', this);
+      if (roomName === this.name) {
+        addUser({ id: socket.id, name: userName });
+        io.sockets.in(roomName).in('lobby').emit('updateRoom', this);
       }
+    });
+
+    socket.on('disconnect', () => {
+      removeUser(socket.id);
+      io.sockets.in(this.name).in('lobby').emit('updateRoom', this);
     });
   });
 
@@ -38,14 +43,12 @@ function Room(name, gamemode, io) {
   };
 
   const removeUser = (id) => {
-    const index = users.findIndex((user) => user.id === id);
+    const index = this.users.findIndex((user) => user.id === id);
     if (index !== -1) {
-      return users.splice(index, 1)[0];
+      return this.users.splice(index, 1)[0];
     }
   };
 
   const getUser = (id) => users.find((user) => user.id === id);
-
-  const getUsersInRoom = (room) => users.filter((user) => user.room === room);
 }
 module.exports = Room;

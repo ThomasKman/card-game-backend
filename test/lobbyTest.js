@@ -1,9 +1,15 @@
+const express = require('express');
+const app = express();
 var assert = require('assert');
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
 
 const Lobby = require('../Lobby/lobby');
 
 // generate new Lobby
-const lobby = new Lobby();
+const lobby = new Lobby(io);
 
 describe('Lobby', function () {
   //addRoom
