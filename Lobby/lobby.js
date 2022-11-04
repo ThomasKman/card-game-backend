@@ -10,7 +10,7 @@ function Lobby(io) {
   const rooms = [];
 
   io.on('connection', (socket) => {
-    io.emit('updateRooms', getRooms());
+    socket.emit('updateRooms', getRooms());
     socket.join('lobby');
 
     socket.on('createRoom', (roomName) => {
@@ -25,6 +25,7 @@ function Lobby(io) {
       };
 
       io.emit('updateRooms', getRooms());
+      console.log('update Rooms triggered by join room ' + socket.id.slice(-3));
     });
   });
 
@@ -53,6 +54,10 @@ function Lobby(io) {
   };
 
   const getRooms = () => {
+    return rooms;
+  };
+
+  Lobby.prototype.getRoomerinos = function getRoomerinos() {
     return rooms;
   };
 
