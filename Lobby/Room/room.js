@@ -18,19 +18,29 @@ function Room(name, gamemode, io) {
 
       if (roomName === this.name) {
         addUser({ id: socket.id, name: userName });
-        io.sockets.in(roomName).in('lobby').emit('updateRoom', this);
+        io.sockets.in(roomName).in('lobby').emit('updateRoom ', this);
+        console.log(
+          'update Rooms triggered by room joinRoom' + socket.id.slice(-3)
+        );
       }
     });
 
     socket.on('disconnect', () => {
       removeUser(socket.id);
-      io.sockets.in(this.name).in('lobby').emit('updateRoom', this);
+      io.sockets.in(this.name).in('lobby').emit('updateRoom ', this);
+      console.log(
+        'update Rooms triggered by room Disconnect' + socket.id.slice(-3)
+      );
     });
   });
 
   // returns users
   Room.prototype.getUsers = function getUsers() {
     return this.users;
+  };
+
+  Room.prototype.getMe = function (callback, salutation) {
+    callback.call(this, salutation);
   };
 
   const addUser = ({ id, name }) => {
