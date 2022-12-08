@@ -1,33 +1,34 @@
 const Room = require('./Room/room');
+const session = require('../Session/Session');
 
 // lobby.js
-function Lobby(io) {
+function Lobby(connection) {
   if (!(this instanceof Lobby)) {
     return new Lobby();
-    this.io = io;
+    this.connection = connection;
   }
 
   const rooms = [];
 
-  io.on('connection', (socket) => {
-    socket.emit('updateRooms', getRooms());
-    socket.join('lobby');
+  // io.on('connection', (socket) => {
+  //   socket.emit('updateRooms', getRooms());
+  //   socket.join('lobby');
 
-    socket.on('createRoom', (roomName) => {
-      addRoom(roomName, 'arnus');
-    });
+  //   socket.on('createRoom', (roomName) => {
+  //     addRoom(roomName, 'arnus');
+  //   });
 
-    socket.on('joinRoom', ({ userName, roomName }) => {
-      user = {
-        id: socket.id,
-        userName: userName,
-        roomName: roomName,
-      };
+  //   socket.on('joinRoom', ({ userName, roomName }) => {
+  //     user = {
+  //       id: socket.id,
+  //       userName: userName,
+  //       roomName: roomName,
+  //     };
 
-      io.emit('updateRooms', getRooms());
-      console.log('update Rooms triggered by join room ' + socket.id.slice(-3));
-    });
-  });
+  //     io.emit('updateRooms', getRooms());
+  //     console.log('update Rooms triggered by join room ' + socket.id.slice(-3));
+  //   });
+  // });
 
   const addRoom = (name, gamemode) => {
     name = format(name);
@@ -38,7 +39,7 @@ function Lobby(io) {
       return { error: 'Room Name is taken' };
     }
 
-    const room = new Room(name, gamemode, io);
+    const room = new Room(name, gamemode, connection);
     rooms.push(room);
 
     return rooms;

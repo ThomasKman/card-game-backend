@@ -1,9 +1,8 @@
 // Room.js
 
-function Room(name, gamemode, io) {
+function Room(name, gamemode) {
   if (!(this instanceof Room)) {
     return new Room();
-    this.io = io;
   }
 
   this.gamemode = gamemode;
@@ -12,27 +11,27 @@ function Room(name, gamemode, io) {
 
   this.users = [];
 
-  io.on('connection', (socket) => {
-    socket.on('joinRoom', ({ userName, roomName }) => {
-      socket.join(roomName);
+  // io.on('connection', (socket) => {
+  //   socket.on('joinRoom', ({ userName, roomName }) => {
+  //     socket.join(roomName);
 
-      if (roomName === this.name) {
-        addUser({ id: socket.id, name: userName });
-        io.sockets.in(roomName).in('lobby').emit('updateRoom ', this);
-        console.log(
-          'update Rooms triggered by room joinRoom' + socket.id.slice(-3)
-        );
-      }
-    });
+  //     if (roomName === this.name) {
+  //       addUser({ id: socket.id, name: userName });
+  //       io.sockets.in(roomName).in('lobby').emit('updateRoom ', this);
+  //       console.log(
+  //         'update Rooms triggered by room joinRoom' + socket.id.slice(-3)
+  //       );
+  //     }
+  //   });
 
-    socket.on('disconnect', () => {
-      removeUser(socket.id);
-      io.sockets.in(this.name).in('lobby').emit('updateRoom ', this);
-      console.log(
-        'update Rooms triggered by room Disconnect' + socket.id.slice(-3)
-      );
-    });
-  });
+  //   socket.on('disconnect', () => {
+  //     removeUser(socket.id);
+  //     io.sockets.in(this.name).in('lobby').emit('updateRoom ', this);
+  //     console.log(
+  //       'update Rooms triggered by room Disconnect' + socket.id.slice(-3)
+  //     );
+  //   });
+  // });
 
   // returns users
   Room.prototype.getUsers = function getUsers() {
