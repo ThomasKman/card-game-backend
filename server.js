@@ -1,3 +1,5 @@
+// last step: session functions
+// next step: restore lobby connection to socket
 const express = require('express');
 const app = express();
 const http = require('http');
