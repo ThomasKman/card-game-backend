@@ -24,11 +24,11 @@ function Room(name, gamemode) {
   //     }
   //   });
 
-  //   socket.on('disconnect', () => {
+  //   socket.on('unconnect', () => {
   //     removeUser(socket.id);
   //     io.sockets.in(this.name).in('lobby').emit('updateRoom ', this);
   //     console.log(
-  //       'update Rooms triggered by room Disconnect' + socket.id.slice(-3)
+  //       'update Rooms triggered by room unconnect' + socket.id.slice(-3)
   //     );
   //   });
   // });
