@@ -17,9 +17,9 @@ class Session {
       console.log('user connected,', 'users: ', this.sockets.length);
       console.log(socket.id);
 
-      socket.on('disconnect', async () => {
+      socket.on('unconnect', async () => {
         this.sockets = await this.io.fetchSockets();
-        console.log('user disconnected', 'users:', this.sockets.length);
+        console.log('user unconnected', 'users:', this.sockets.length);
       });
     });
   }
@@ -33,8 +33,8 @@ class Session {
       );
     } else {
       this.io.on('connection', async (socket) => {
-        socket.on(keyword, (text) => {
-          callback(text, socket.id);
+        socket.on(keyword, (data) => {
+          callback(data, socket);
         });
       });
     }
@@ -43,7 +43,7 @@ class Session {
   // Emit data to Sockets
   // data object structure {level,socket,room}
   // level options: io, socket, room
-  // socket = socket.id , room= roomName
+  // socket = socket , room= roomName
   emit(keyword, data, adress) {
     if (this.io == null) {
       console.log(
@@ -57,10 +57,10 @@ class Session {
       }
       // emit to specific socket
       else if (adress.level === 'socket') {
-        const socket = this.sockets.find(
-          (socket) => socket.id === adress.socket
-        );
-        socket.emit(keyword, data);
+        // const socket = this.sockets.find(
+        //   (socket) => socket.id === adress.socket
+        // );
+        adress.socket.emit(keyword, data);
       }
       // emit to specific room
       else if (adress.level === 'room') {
